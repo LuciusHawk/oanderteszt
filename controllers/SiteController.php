@@ -64,14 +64,17 @@ class SiteController extends Controller
     public function actionIndex()
     {
         $monitor = new Monitor();
-        $monitor->name = 'HELLO';
+        /*$monitor->name = 'Sunday';
         $monitor->brand = [
-            'value' => 'WWE',
+            'value' => 'Sun',
             'option' => [
                 'value' => 'string'
             ],
+            'rule' => [
+                'required' => true,
+            ],
         ];
-        $monitor->save();
+        $monitor->save();*/
 
         $dataProvider = $monitor->getAllMonitors();
 

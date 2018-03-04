@@ -3,6 +3,10 @@
 namespace app\models\Helpers;
 
 use mirocow\eav\models\EavAttribute;
+use mirocow\eav\models\EavAttributeOption;
+use mirocow\eav\models\EavAttributeRule;
+use mirocow\eav\models\EavAttributeType;
+use mirocow\eav\models\EavAttributeValue;
 use mirocow\eav\models\EavEntity;
 use yii\db\ActiveRecord;
 
@@ -16,11 +20,27 @@ class EAV extends ActiveRecord
      * @var
      */
     private $entity;
-    private $attribute;
-    private $attributeOption;
-    private $attributeRule;
-    private $attributeType;
-    private $attributeValue;
+    /**
+     * @var array
+     */
+    private $attributes = array();
+    private $attributeRules = array();
+
+    /**
+     * A hozzáadáson dolgoztam.
+     * már csak az option, rule és a value mentése van hátra az attributumnak.
+     * ezután terv szerint: amikor lekérem az entitást, akkor összerakom egy Monitor példányba, hogy ki tudjam listázni
+     * és meg tudjam tekinteni.
+     * Lástázás: lapozás és szűrés
+     * Megtekintésnél kell valami lehetőség hogy új attribútumokat is hozzátudjak adni
+     *
+     * installálás: szerintem simán létrehozok egy kontrollert és ott nyomok be neki 50 random monitort, bármennyire is szeretnék
+     * migrációt..... de azt is megcsinálom azért, könnyebb visszavonni :)
+     *
+     * sql-mode: none <--- nem pedit ez a STRICT_TABLE_TRANS mittomén....
+     *
+     */
+
 
     /**
      * EAV constructor.
@@ -28,6 +48,14 @@ class EAV extends ActiveRecord
     public function __construct($entity = [], $attributes = [])
     {
         $this->initEAV($entity, $attributes);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return array_merge(parent::rules(), $this->attributeRules);
     }
 
     private function initEAV($entity = [], $attributes = [])
@@ -72,16 +100,16 @@ class EAV extends ActiveRecord
     /**
      * @return mixed
      */
-    public function getEavAttribute()
+    public function getEavAttribute($attributeId)
     {
-        return $this->attribute;
+        return EavAttribute::findOne($attributeId);
     }
 
     /**
-     * @param $attribute
+     * @param $attributes
      * @return bool
      */
-    public function setEavAttribute($attribute)
+    public function setEavAttribute($attributes)
     {
         if ($this->entity && !empty($attributes)) {
             foreach ($attributes as $key => $value) {
@@ -92,33 +120,34 @@ class EAV extends ActiveRecord
                     }
                     $attr->entityId = $this->entity->id;
                     $attr->name = $key;
-
-                    foreach ($value as $valueKey => $v) {
-                        if (isset($attr->$valueKey)) {
-                            $attr->$valueKey = $v;
+                    foreach ($value as $vKey => $vValue) {
+                        if (isset($attr->$vKey)) {
+                            $attr->$vKey = $vValue;
                         }
                     }
                     if ($attr->save()) {
-                        $this->attribute = $attr->id;
-
                         foreach ($value as $attributeSettingsLabel => $attributeSettingsValue) {
                             if (is_array($attributeSettingsValue)) {
                                 switch ($attributeSettingsLabel) {
                                     case 'option':
-                                        $this->setEavAttributeOption($attributeSettingsValue);
+                                        $this->setEavAttributeOption($attributeSettingsValue, $attr->id);
                                         break;
                                     case 'rule':
-                                        $this->setEavAttributeRule($attributeSettingsValue);
+                                        $this->setEavAttributeRule($attributeSettingsValue, $attr->id);
                                         break;
                                 }
                             }
                             continue;
                         }
-                        $this->setEavAttributeValue($value['value']);
+                        if ($this->setEavAttributeValue($value['value'], $this->entity->id, $attr->id)) {
+                            $this->attributes[] = [
+                                $attr->id = $value['value']
+                            ];
+                        }
                     }
                 }
             }
-
+            return (!empty($this->attributes)) ? true : false;
         }
         return false;
     }
@@ -126,65 +155,107 @@ class EAV extends ActiveRecord
     /**
      * @return mixed
      */
-    public function getEavAttributeOption()
+    public function getEavAttributeOptions($attributeId)
     {
-        return $this->attributeOption;
+        return EavAttributeOption::find()->where(['attributeId' => $attributeId])->all();
     }
 
     /**
-     * @param mixed $attributeOption
+     * @param array $attributeOption
+     * @param null $attributeId
      */
-    public function setEavAttributeOption($attributeOption)
+    public function setEavAttributeOption($attributeOption = array(), $attributeId = null)
     {
-        $this->attributeOption = $attributeOption;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getEavAttributeRule()
-    {
-        return $this->attributeRule;
-    }
-
-    /**
-     * @param mixed $attributeRule
-     */
-    public function setEavAttributeRule($attributeRule)
-    {
-        $this->attributeRule = $attributeRule;
+        if (!empty($attributeOption) && !empty($attributeId)) {
+            $eavOption = EavAttributeOption::find()->where(['attributeId' => $attributeId])->one();
+            if (empty($eavOption)) {
+                $eavOption = new EavAttributeOption();
+            }
+            $eavOption->attributeId = $attributeId;
+            foreach ($attributeOption as $key => $value) {
+                $eavOption->$key = $value;
+            }
+            $eavOption->save();
+        }
     }
 
     /**
      * @return mixed
      */
-    public function getEavAttributeType()
+    public function getEavAttributeRules($attributeId)
     {
-        return $this->attributeType;
+        return EavAttributeRule::find()->where(['attributeId' => $attributeId])->all();
     }
 
     /**
-     * @param mixed $attributeType
+     * @param array $attributeRule
+     * @param null $attributeId
      */
-    public function setEavAttributeType($attributeType)
+    public function setEavAttributeRule($attributeRule = array(), $attributeId = null)
     {
-        $this->attributeType = $attributeType;
+        if (!empty($attributeRule) && !empty($attributeId)) {
+            $eavRule = EavAttributeRule::find()->where(['attributeId' => $attributeId])->one();
+            if (empty($eavRule)) {
+                $eavRule = new EavAttributeRule();
+            }
+            $eavRule->attributeId = $attributeId;
+            foreach ($attributeRule as $key => $value) {
+                $eavRule->$key = $value;
+            }
+            if ($eavRule->save()) {
+                $attrName = $this->getEavAttribute($attributeId)->name;
+                foreach ($attributeRule as $key => $value) {
+                    if (isset($eavRule->required) && $eavRule->required) $this->attributeRules[] = [[$attrName], 'required'];
+                }
+            }
+        }
     }
 
     /**
      * @return mixed
      */
-    public function getEavAttributeValue()
+    public function getEavAttributeType($attributeTypeId)
     {
-        return $this->attributeValue;
+        return EavAttributeType::findOne($attributeTypeId);
     }
 
     /**
-     * @param mixed $attributeValue
+     * @return mixed
      */
-    public function setEavAttributeValue($attributeValue)
+    public function getEavAttributeValue($entityId, $attributeId)
     {
-        $this->attributeValue = $attributeValue;
+        return EavAttributeValue::find()->where([
+            'entityId' => $entityId,
+            'attributeId' => $attributeId,
+        ])->one();
+    }
+
+    /**
+     * @param string $attributeValue
+     * @param null $entityId
+     * @param null $attributeId
+     * @param null $optionId
+     * @return bool
+     */
+    public function setEavAttributeValue($attributeValue = '', $entityId = null, $attributeId = null, $optionId = null)
+    {
+        if (!empty($attributeValue) && !empty($entityId) && !empty($attributeId)) {
+            $eavValue = EavAttributeValue::find()->where([
+                'entityId' => $entityId,
+                'attributeId' => $attributeId
+            ])->one();
+            if (empty($eavValue)) {
+                $eavValue = new EavAttributeValue();
+                $eavValue->entityId = $entityId;
+                $eavValue->attributeId = $attributeId;
+            }
+            $eavValue->value = $attributeValue;
+            if (!empty($optionId)) {
+                $eavValue->optionId = $optionId;
+            }
+            return $eavValue->save();
+        }
+        return false;
     }
 
 

@@ -28,7 +28,7 @@ class Monitor
             'entityName' => $this->name,
             'entityModel' => Monitor::class,
         );
-        $attributes = [];
+        $attributes = array();
         foreach ($this as $key => $value) {
             $attributes[$key] =$value;
         }

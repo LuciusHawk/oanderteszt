@@ -62,9 +62,9 @@ class Monitor
         }
     }
 
-    public function createMonitor()
+    public function createMonitor($monitorEav = null)
     {
-        $this->initMonitor();
+        $this->initMonitor($monitorEav);
     }
 
     /**
@@ -73,18 +73,19 @@ class Monitor
     public function save()
     {
         if (isset($this->entityName) && !empty($this->entityName)) {
-            $entity = array(
-                'entityName' => $this->entityName,
-                'entityModel' => Monitor::class,
-            );
-            $ignoredAttributes = array('id', 'entityName', 'entityModel', 'categoryId', 'attributeRules');
+            $entityAttributes = array('id', 'entityName', 'entityModel', 'categoryId');
+            $entity = array();
             $attributes = array();
             foreach ($this as $key => $value) {
-                if(!in_array($key, $ignoredAttributes)) {
+                if (!in_array($key, $entityAttributes)) {
                     $key = str_replace(' ', '', lcfirst(ucwords($key)));
                     $attributes[$key] = [
                         'value' => $value
                     ];
+                }else {
+                    if($key != 'attributeRules') {
+                        $entity[$key] = $value;
+                    }
                 }
             }
             $eav = new EAV();

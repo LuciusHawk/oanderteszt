@@ -5,8 +5,9 @@ use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Monitor */
+/* @var $attributes array*/
 
-$this->title = $model->name;
+$this->title = $model->entityName;
 $this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Monitors'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -27,15 +28,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= DetailView::widget([
         'model' => $model,
-        'attributes' => [
-            'diagonal',
-            'resolution',
-            'brand',
-            'price',
-            'discount_price',
-            'name',
-            'description:ntext',
-        ],
+        'attributes' => $attributes,
     ]) ?>
 
 </div>

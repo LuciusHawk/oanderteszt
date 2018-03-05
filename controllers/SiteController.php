@@ -16,6 +16,9 @@ use app\models\LoginForm;
 
 class SiteController extends Controller
 {
+
+    private $ignoredAttributes = array('id', 'entityModel', 'categoryId');
+
     /**
      * {@inheritdoc}
      */
@@ -95,8 +98,18 @@ class SiteController extends Controller
      */
     public function actionView($id)
     {
+        $model = new Monitor();
+        $model->createMonitor($this->findModel($id));
+        $attributes = array();
+        foreach ($model as $key => $value) {
+            if (!in_array($key, $this->ignoredAttributes)) {
+                $attributes[] = $key;
+            }
+        }
+
         return $this->render('view', [
-            'model' => $this->findModel($id),
+            'model' => $model,
+            'attributes' => $attributes,
         ]);
     }
 
@@ -110,13 +123,12 @@ class SiteController extends Controller
         $model = new Monitor();
         $model->createMonitor();
         $attributes = array();
-        $ignoredAttributes = array('id', 'entityModel', 'categoryId');
         foreach ($model as $key => $value) {
-            if(!in_array($key, $ignoredAttributes)) {
+            if (!in_array($key, $this->ignoredAttributes)) {
                 $attributes[$key] = $value;
             }
         }
-        if($post = Yii::$app->request->post('MonitorForm')) {
+        if ($post = Yii::$app->request->post('MonitorForm')) {
             foreach ($post as $key => $value) {
                 $model->$key = $value;
             }
@@ -140,14 +152,26 @@ class SiteController extends Controller
      */
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        $model = new Monitor();
+        $model->createMonitor($this->findModel($id));
+        $attributes = array();
+        foreach ($model as $key => $value) {
+            if (!in_array($key, $this->ignoredAttributes)) {
+                $attributes[$key] = $value;
+            }
+        }
+        if ($post = Yii::$app->request->post('MonitorForm')) {
+            foreach ($post as $key => $value) {
+                $model->$key = $value;
+            }
+            if ($model->save()) {
+                return $this->redirect(['index']);
+            }
         }
 
         return $this->render('update', [
             'model' => $model,
+            'attributes' => $attributes,
         ]);
     }
 

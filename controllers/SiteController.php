@@ -184,7 +184,10 @@ class SiteController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        //$this->findModel($id)->delete();
+        $model = new Monitor();
+        $model->createMonitor($this->findModel($id));
+        $model->delete();
 
         return $this->redirect(['index']);
     }

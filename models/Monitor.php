@@ -4,6 +4,8 @@ namespace app\models;
 
 use app\models\Helpers\EAV;
 use mirocow\eav\models\EavAttribute;
+use mirocow\eav\models\EavAttributeOption;
+use mirocow\eav\models\EavAttributeRule;
 use mirocow\eav\models\EavAttributeSearch;
 use mirocow\eav\models\EavAttributeValue;
 use mirocow\eav\models\EavEntity;
@@ -123,6 +125,27 @@ class Monitor
             $ret[] = $key;
         }
         return $ret;
+    }
+
+    public function delete ()
+    {
+        if(isset($this->id) && !empty($this->id)){
+            $attrs = EavAttribute::find()->where(["entityId" => $this->id])->all();
+            foreach ($attrs as $attr) {
+                if($d = EavAttributeOption::find()->where(['attributeId' => $attr->id])->one()) {
+                    $d->delete();
+                }
+               if($d = EavAttributeRule::find()->where(['attributeId' => $attr->id])->one()) {
+                    $d->delete();
+                }
+               if($d = EavAttributeValue::find()->where(['attributeId' => $attr->id])->one()) {
+                    $d->delete();
+                }
+            }
+            $ent = EavEntity::findOne($this->id);
+            $ent->delete();
+        }
+
     }
 
 }

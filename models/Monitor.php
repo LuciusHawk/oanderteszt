@@ -105,10 +105,8 @@ class Monitor
      */
     public function getAllMonitors()
     {
-        $entSearch = new EavEntitySearch();
         $monitors = array();
-
-        $entities = $entSearch->search(['entityModel' => Monitor::class])->getModels();
+        $entities = EavEntity::find()->where(['entityModel' => Monitor::class])->all();
         foreach ($entities as $entity) {
             $monitor = new Monitor();
             $monitor->initMonitor($entity);

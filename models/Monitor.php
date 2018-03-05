@@ -88,6 +88,7 @@ class Monitor
                     if($key != 'attributeRules') {
                         $entity[$key] = $value;
                     }
+                    $entity['entityModel'] = Monitor::class;
                 }
             }
             $eav = new EAV();

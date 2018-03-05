@@ -1,0 +1,11 @@
+Telepítés:
+-config/db.php-ban meghatározott adatbázis kapcsolatot ellenőrizni/létrehozni
+-composer install
+-yii migrate (HINT: érdemes az sql-mode-ot "none"-ra állítani)
+-yii install (50 monitor hozzáadása a db-hez)
+
+URL:
+localhost/(testmappa/)web/
+
+DevTime:
+~12h

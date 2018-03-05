@@ -6,6 +6,7 @@ use app\models\Monitor;
 use mirocow\eav\models\EavEntity;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -64,19 +65,21 @@ class SiteController extends Controller
     public function actionIndex()
     {
         $monitor = new Monitor();
-        /*$monitor->name = 'Sunday';
-        $monitor->brand = [
-            'value' => 'Sun',
-            'option' => [
-                'value' => 'string'
+        $monitors = $monitor->getAllMonitors();
+        $attributes = array();
+        foreach ($monitors as $monitor) {
+            $attr = $monitor->getMonitorAttributes();
+            $attributes = array_unique(array_merge($attributes, $attr));
+        }
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $monitors,
+            'sort' => [
+                'attributes' => $attributes,
             ],
-            'rule' => [
-                'required' => true,
+            'pagination' => [
+                'pageSize' => 20,
             ],
-        ];
-        $monitor->save();*/
-
-        $dataProvider = $monitor->getAllMonitors();
+        ]);
 
 
         return $this->render('index', [
@@ -105,13 +108,26 @@ class SiteController extends Controller
     public function actionCreate()
     {
         $model = new Monitor();
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        $model->createMonitor();
+        $attributes = array();
+        $ignoredAttributes = array('id', 'entityModel', 'categoryId');
+        foreach ($model as $key => $value) {
+            if(!in_array($key, $ignoredAttributes)) {
+                $attributes[$key] = $value;
+            }
+        }
+        if($post = Yii::$app->request->post('MonitorForm')) {
+            foreach ($post as $key => $value) {
+                $model->$key = $value;
+            }
+            if ($model->save()) {
+                return $this->redirect(['index']);
+            }
         }
 
         return $this->render('create', [
             'model' => $model,
+            'attributes' => $attributes,
         ]);
     }
 
@@ -193,7 +209,7 @@ class SiteController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Monitor::findOne($id)) !== null) {
+        if (($model = EavEntity::findOne($id)) !== null) {
             return $model;
         }
 

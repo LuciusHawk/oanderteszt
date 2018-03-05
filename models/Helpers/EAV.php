@@ -27,11 +27,6 @@ class EAV extends ActiveRecord
     private $attributeRules = array();
 
     /**
-     * A hozzáadáson dolgoztam.
-     * már csak az option, rule és a value mentése van hátra az attributumnak.
-     * ezután terv szerint: amikor lekérem az entitást, akkor összerakom egy Monitor példányba, hogy ki tudjam listázni
-     * és meg tudjam tekinteni.
-     * Lástázás: lapozás és szűrés
      * Megtekintésnél kell valami lehetőség hogy új attribútumokat is hozzátudjak adni
      *
      * installálás: szerintem simán létrehozok egy kontrollert és ott nyomok be neki 50 random monitort, bármennyire is szeretnék
@@ -45,9 +40,9 @@ class EAV extends ActiveRecord
     /**
      * EAV constructor.
      */
-    public function __construct($entity = [], $attributes = [])
+    public function __construct()
     {
-        $this->initEAV($entity, $attributes);
+
     }
 
     /**
@@ -58,11 +53,20 @@ class EAV extends ActiveRecord
         return array_merge(parent::rules(), $this->attributeRules);
     }
 
-    private function initEAV($entity = [], $attributes = [])
+    /**
+     * @param array $entity
+     * @param array $attributes
+     * @return bool
+     */
+    public function saveEAV($entity = [], $attributes = [])
     {
         if ($this->setEntity($entity)) {
-            if ($this->setEavAttribute($attributes)) ;
+            if ($this->setEavAttribute($attributes)){
+                return true;
+            }
+            return true;
         }
+        return false;
     }
 
 
@@ -137,7 +141,6 @@ class EAV extends ActiveRecord
                                         break;
                                 }
                             }
-                            continue;
                         }
                         if ($this->setEavAttributeValue($value['value'], $this->entity->id, $attr->id)) {
                             $this->attributes[] = [

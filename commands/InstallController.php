@@ -7,28 +7,35 @@
 
 namespace app\commands;
 
+use app\models\Monitor;
 use yii\console\Controller;
-use yii\console\ExitCode;
 
 /**
- * This command echoes the first argument that you have entered.
+ * Add 50 monitor to db
  *
  * This command is provided as an example for you to learn how to create console commands.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class HelloController extends Controller
+class InstallController extends Controller
 {
-    /**
-     * This command echoes what you have entered as the message.
-     * @param string $message the message to be echoed.
-     * @return int Exit code
-     */
-    public function actionIndex($message = 'hello world')
+    public function actionIndex()
     {
-        echo $message . "\n";
-
-        return ExitCode::OK;
+        $randMonitors = array();
+        for ($i = 0; $i < 50; $i++) {
+            $randMonitors[] = [
+                'entityName' => 'Monitor' . rand(44444, 999999),
+                'brand' => 'ChinaTech' . rand(3, 333),
+            ];
+        }
+        foreach ($randMonitors as $randMonitor) {
+            $monitor = new Monitor();
+            $monitor->createMonitor();
+            $monitor->entityName = $randMonitor['entityName'];
+            $monitor->brand = $randMonitor['brand'];
+            $monitor->save();
+            echo "$monitor->entityName\r\n";
+        }
     }
 }

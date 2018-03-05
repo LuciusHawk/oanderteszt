@@ -60,8 +60,8 @@ class EAV extends ActiveRecord
      */
     public function saveEAV($entity = [], $attributes = [])
     {
-        if ($this->setEntity($entity)) {
-            if ($this->setEavAttribute($attributes)){
+        if ($ent = $this->setEntity($entity)) {
+            if ($this->setEavAttribute($attributes, $ent->id)){
                 return true;
             }
             return true;
@@ -113,12 +113,15 @@ class EAV extends ActiveRecord
      * @param $attributes
      * @return bool
      */
-    public function setEavAttribute($attributes)
+    public function setEavAttribute($attributes, $entityId = null)
     {
         if ($this->entity && !empty($attributes)) {
             foreach ($attributes as $key => $value) {
                 if (is_array($value)) {
-                    $attr = EavAttribute::find()->where(['name' => $key])->one();
+                    $attr = '';
+                    if(!empty($entityId)) {
+                        $attr = EavAttribute::find()->where(['entityId' => $entityId, 'name' => $key])->one();
+                    }
                     if (empty($attr)) {
                         $attr = new EavAttribute();
                     }

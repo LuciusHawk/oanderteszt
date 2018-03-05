@@ -42,12 +42,11 @@ class Monitor
         if (empty($entity)) {
             $entity = new EavEntity();
         }
-        $attrSearch = new EavAttributeSearch();
 
         foreach ($entity as $key => $value) {
             $this->$key = $value;
         }
-        $attributes = $attrSearch->search(['entityId' => $entity->id])->getModels();
+        $attributes = EavAttribute::find()->where(['entityId' => $entity->id])->all();
         if (!empty($attributes)) {
             foreach ($attributes as $attribute) {
                 $value = EavAttributeValue::find()->where([
@@ -80,12 +79,14 @@ class Monitor
             $attributes = array();
             foreach ($this as $key => $value) {
                 if (!in_array($key, $entityAttributes)) {
-                    $key = str_replace(' ', '', lcfirst(ucwords($key)));
-                    $attributes[$key] = [
-                        'value' => $value
-                    ];
-                }else {
-                    if($key != 'attributeRules') {
+                    if ($key != 'attributeRules') {
+                        $key = str_replace(' ', '', lcfirst(ucwords($key)));
+                        $attributes[$key] = [
+                            'value' => $value
+                        ];
+                    }
+                } else {
+                    if ($key != 'attributeRules') {
                         $entity[$key] = $value;
                     }
                     $entity['entityModel'] = Monitor::class;
@@ -128,18 +129,18 @@ class Monitor
         return $ret;
     }
 
-    public function delete ()
+    public function delete()
     {
-        if(isset($this->id) && !empty($this->id)){
+        if (isset($this->id) && !empty($this->id)) {
             $attrs = EavAttribute::find()->where(["entityId" => $this->id])->all();
             foreach ($attrs as $attr) {
-                if($d = EavAttributeOption::find()->where(['attributeId' => $attr->id])->one()) {
+                if ($d = EavAttributeOption::find()->where(['attributeId' => $attr->id])->one()) {
                     $d->delete();
                 }
-               if($d = EavAttributeRule::find()->where(['attributeId' => $attr->id])->one()) {
+                if ($d = EavAttributeRule::find()->where(['attributeId' => $attr->id])->one()) {
                     $d->delete();
                 }
-               if($d = EavAttributeValue::find()->where(['attributeId' => $attr->id])->one()) {
+                if ($d = EavAttributeValue::find()->where(['attributeId' => $attr->id])->one()) {
                     $d->delete();
                 }
             }

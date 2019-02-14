@@ -1,15 +1,19 @@
-
-• Készíts egy PHP programot a következő instrukciók alapján.
-• A program install.php fájlja hozzon létre egy EAV modellel felépített táblaszerkezetet egy
+<ul>
+    <li>• Készíts egy PHP programot a következő instrukciók alapján.</li><br>
+    <li>• A program install.php fájlja hozzon létre egy EAV modellel felépített táblaszerkezetet egy
 adatbázisban. Az adatbázis értékesített monitorokat és a hozzájuk tartozó jellemzőket
 tartalmazza (jellemzők: képátló, felbontás, márka, ár, akciós ár, név, leírás). Az install.php
-töltse fel az adatbázist legalább ötven random generált monitorral.
-• Legyen egy index.php, ami listázza a monitorokat lapozhatóan és szűrhetően. Szűrni
+töltse fel az adatbázist legalább ötven random generált monitorral.</li><br>
+    <li>• Legyen egy index.php, ami listázza a monitorokat lapozhatóan és szűrhetően. Szűrni
 legalább három jellemzőre lehessen, valamint az árra - maximum-minimum érték
-alapján. Listázáskor a monitorok minden jellemzője jelenjen meg.
-• A felhasználó felület HTML tagekbe rendeződve jelenjen meg, CSS alkalmazása nem
-szükséges.
-• Egy TXT fájl tartalmazza, hogy mennyi időbe került a fejlesztés.
+alapján. Listázáskor a monitorok minden jellemzője jelenjen meg.</li><br>
+    <li>• A felhasználó felület HTML tagekbe rendeződve jelenjen meg, CSS alkalmazása nem
+szükséges.</li><br>
+    <li>• Egy TXT fájl tartalmazza, hogy mennyi időbe került a fejlesztés.</li><br>
+ </ul>
+
+
+
 
 
 

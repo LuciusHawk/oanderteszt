@@ -1,3 +1,25 @@
+
+• Készíts egy PHP programot a következő instrukciók alapján.
+• A program install.php fájlja hozzon létre egy EAV modellel felépített táblaszerkezetet egy
+adatbázisban. Az adatbázis értékesített monitorokat és a hozzájuk tartozó jellemzőket
+tartalmazza (jellemzők: képátló, felbontás, márka, ár, akciós ár, név, leírás). Az install.php
+töltse fel az adatbázist legalább ötven random generált monitorral.
+• Legyen egy index.php, ami listázza a monitorokat lapozhatóan és szűrhetően. Szűrni
+legalább három jellemzőre lehessen, valamint az árra - maximum-minimum érték
+alapján. Listázáskor a monitorok minden jellemzője jelenjen meg.
+• A felhasználó felület HTML tagekbe rendeződve jelenjen meg, CSS alkalmazása nem
+szükséges.
+• Egy TXT fájl tartalmazza, hogy mennyi időbe került a fejlesztés.
+
+
+
+
+
+
+
+
+
+
 <p align="center">
     <a href="https://github.com/yiisoft" target="_blank">
         <img src="https://avatars0.githubusercontent.com/u/993323" height="100px">
